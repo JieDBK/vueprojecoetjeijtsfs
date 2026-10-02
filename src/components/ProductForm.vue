@@ -72,6 +72,7 @@ function handleSubmit() {
         newProductCategory.value = ''
         formError.value = ''
     }
+    emit ('cancel')
 }
 
 </script>
@@ -111,8 +112,10 @@ function handleSubmit() {
     </label>
 
     <button type="submit">
-        Add 
       {{ props.editingProduct ? 'Update Product' : 'Add Product' }}
+    </button>
+    <button type="button" v-if="props.editingProduct != null" @click="emit('cancel')">
+      {{ 'Cancel' }}
     </button>
 
     <!-- <button type="button" v-if="props.editingProduct !== null" @click="cancelEdit">Cancel edit</button> -->
