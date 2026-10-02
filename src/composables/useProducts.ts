@@ -17,31 +17,28 @@ export interface Product {
 //   { id: 5, name: "Gum", price: 3.75, description: "Good gum", stock: 300, category: "School"},
 // ])
 
-const products = ref<Product[]>(JSON.parse(localStorage.getItem('products') || '[]'))
+const products = ref<Product[]>(JSON.parse(localStorage.getItem('products') || '[]')) //dit zet json tekst formaat products om in object products
 const lastSaved = ref<string | null>(null)
-const expensiveProductString = ref<string | null>(null)
-
-watch(products, (latest) => {
- localStorage.setItem('products', JSON.stringify(latest))
- lastSaved.value = new Date().toLocaleTimeString()
-}, { deep: true })
+const expensiveProduct = ref<Product | null>(null)
 
 
 watch(products, (latest) => {
- localStorage.setItem('products', JSON.stringify(latest))
+ localStorage.setItem('products', JSON.stringify(latest)) //dit zet object products om in json tekst formaat
  lastSaved.value = new Date().toLocaleTimeString()
 }, { deep: true })
 
 watch(
  () => products.value.find(p => p.price > 1000),
- (expensiveProduct) => {
- if (expensiveProduct) {
- expensiveProductString.value = 'Expensive product detected:' + " " + expensiveProduct.name}
- else expensiveProductString.value = null}
+ (foundProduct) => {
+ if (foundProduct) {
+  expensiveProduct.value = foundProduct
+ }
+ expensiveProduct.value = null
+ }
 )
 
 export function useProducts() {
-  const editingId = ref<number | null>(null)
+  const hasUnsavedChanges = ref(false)
 
   const productCount = computed(() => {
     return products.value.length
@@ -50,6 +47,16 @@ export function useProducts() {
   const totalValue = computed(() => {
     return products.value.reduce((sum, p) => sum + p.price, 0)
   })
+
+  watch(
+    () => totalValue.value,
+    (newTotal) => {
+    if (newTotal >= 5000)
+    console.log('The total value is above $5000')}
+    
+  )
+
+  watch(products, () => {hasUnsavedChanges.value = true}, {deep: true}) //als products verandert dan gaat unsavedchanges op true
 
   function addProduct(name: string, price: number, description: string, stock: number, category: string) {
   const newProduct: Product = {
@@ -64,15 +71,15 @@ export function useProducts() {
     products.value.push(newProduct)
     }
 
-  function updateProduct(name: string, price: number, description: string, stock: number, category: string) {  
+  function updateProduct(editingProduct: Product) {  
   // Find and update the product
-  const product = products.value.find(p => p.id === editingId.value)
+  const product = products.value.find(p => p.id === editingProduct.id)
     if (product) {
-        product.name = name
-        product.price = price
-        product.description = description
-        product.stock = stock
-        product.category = category
+        product.name = editingProduct.name
+        product.price = editingProduct.price
+        product.description = editingProduct.description
+        product.stock = editingProduct.stock
+        product.category = editingProduct.category
     }
     }
 
@@ -82,13 +89,12 @@ export function useProducts() {
 
     return {
         products,
-        editingId,
         productCount,
         totalValue,
         addProduct,
         updateProduct,
         deleteProduct,
         lastSaved,
-        expensiveProductString
+        hasUnsavedChanges
     } 
 }

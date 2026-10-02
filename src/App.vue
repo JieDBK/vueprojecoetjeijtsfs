@@ -4,5 +4,5 @@ import ProductManagementPage from './pages/ProductManagementPage.vue'
 </script>
 
 <template>
-  
+  <ProductManagementPage />
 </template>
