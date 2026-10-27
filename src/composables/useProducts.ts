@@ -1,25 +1,12 @@
 import { ref, computed, watch } from 'vue'
-
-export interface Product {
-  id: number
-  name: string
-  price: number
-  description: string
-  stock: number
-  category: string
-}
-
-// const products = ref<Product[]>([
-//   { id: 1, name: "Pen", price: 12.99, description: "Blue pen", stock: 100, category: "School"},
-//   { id: 2, name: "Book", price: 16.99, description: "Super adventure", stock: 200, category: "Books"},
-//   { id: 3, name: "Mug", price: 7.99, description: "Big mug", stock: 0, category: "House"},
-//   { id: 4, name: "Notebook", price: 6.25, description: "Large notebook", stock: 4, category: "School"},
-//   { id: 5, name: "Gum", price: 3.75, description: "Good gum", stock: 300, category: "School"},
-// ])
+import type { Product } from '@/types/Product'
+import type { FakeStoreProduct } from '../types/FakeStoreProduct'
 
 const products = ref<Product[]>(JSON.parse(localStorage.getItem('products') || '[]')) //dit zet json tekst formaat products om in object products
 const lastSaved = ref<string | null>(null)
 const expensiveProduct = ref<Product | null>(null)
+const error = ref<string | null>()
+const loading = ref(false)
 
 
 watch(products, (latest) => {
@@ -58,14 +45,15 @@ export function useProducts() {
 
   watch(products, () => {hasUnsavedChanges.value = true}, {deep: true}) //als products verandert dan gaat unsavedchanges op true
 
-  function addProduct(name: string, price: number, description: string, stock: number, category: string) {
+  function addProduct(name: string, price: number, description: string, stock: number, category: string, image?: string) {
   const newProduct: Product = {
         id: Date.now(), // Simple temporary ID - in real apps, the backend generates this
         name,
         price,
         description,
         stock, 
-        category
+        category,
+        ...(image ? { image } : {})
     }
 
     products.value.push(newProduct)
@@ -80,6 +68,11 @@ export function useProducts() {
         product.description = editingProduct.description
         product.stock = editingProduct.stock
         product.category = editingProduct.category
+        if (editingProduct.image) {
+          product.image = editingProduct.image
+        } else {
+          delete product.image
+        }
     }
     }
 
@@ -87,14 +80,68 @@ export function useProducts() {
         products.value = products.value.filter(p => p.id !== id)
     }
 
-    return {
+    function getProduct(id: number) :Product | undefined {
+      return products.value.find(p => p.id === id)
+    }
+
+
+    async function fetchProducts(){
+
+      if (loading.value) return
+
+      loading.value = true;
+      error.value = null
+      try
+      {
+      const response = await fetch('https://fakestoreapi.com/products')
+      console.log('fetch products')
+      if (!response.ok)
+      {
+        throw new Error('Request failed with status ${response.status}')
+      }
+      const data: FakeStoreProduct[] = await response.json()
+      products.value = data.map(item => ({
+        id: item.id,
+        name: item.title,
+        price: item.price,
+        image: item.image,
+        description: item.description,
+        category: item.category,
+        stock: 0
+        }))
+      }
+      catch(err)
+      {
+        error.value = err instanceof Error ? err.message : 'An unknown error occurred'
+      } 
+      finally{
+        loading.value = false;
+      }
+
+
+    }
+
+    async function initProduct()
+    {
+      if (localStorage.getItem('products') === null)
+      {
+        await fetchProducts()
+      }
+    }
+
+
+     return {
         products,
         productCount,
         totalValue,
+        getProduct,
         addProduct,
         updateProduct,
         deleteProduct,
         lastSaved,
-        hasUnsavedChanges
+        hasUnsavedChanges,
+        initProduct,
+        loading,
+        error
     } 
 }

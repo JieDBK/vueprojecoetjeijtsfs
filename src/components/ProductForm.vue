@@ -11,6 +11,7 @@ const newProductPrice = ref<number>(0)
 const newProductDescription = ref<string>('')
 const newProductStock = ref<number>(0)
 const newProductCategory = ref<string>('')
+const newProductImage = ref<string>('')
 const formError = ref('')
 
 watch(() => props.editingProduct, (product) => {
@@ -20,12 +21,14 @@ watch(() => props.editingProduct, (product) => {
     newProductDescription.value = product.description
     newProductStock.value = product.stock
     newProductCategory.value = product.category
+    newProductImage.value = product.image ?? ''
     } else {
     newProductName.value = ''
     newProductPrice.value = 0
     newProductDescription.value = ''
     newProductStock.value = 0
     newProductCategory.value = ''
+    newProductImage.value = ''
     }
 }, { immediate: true })
 
@@ -35,7 +38,8 @@ const emit = defineEmits<{
     price: number,
     description: string,
     stock: number,
-    category: string
+    category: string,
+    image?: string
 ]
 update: [product: Product]
 cancel: []
@@ -50,7 +54,8 @@ function handleSubmit() {
         price: newProductPrice.value,
         description: newProductDescription.value,
         category: newProductCategory.value,
-        stock: newProductStock.value
+        stock: newProductStock.value,
+        ...(newProductImage.value.trim() ? { image: newProductImage.value.trim() } : {})
     }
     emit('update', updated)
     } else {
@@ -63,13 +68,15 @@ function handleSubmit() {
         newProductPrice.value, 
         newProductDescription.value, 
         newProductStock.value, 
-        newProductCategory.value)
+        newProductCategory.value,
+        newProductImage.value.trim() || undefined)
 
         newProductName.value = ''
         newProductPrice.value = 0
         newProductDescription.value = ''
         newProductStock.value = 0
         newProductCategory.value = ''
+        newProductImage.value = ''
         formError.value = ''
     }
     emit ('cancel')
@@ -109,6 +116,11 @@ function handleSubmit() {
         <option>House</option>
         <option>Books</option>
       </select>
+    </label>
+
+    <label>
+      Image URL (optional)
+      <input v-model="newProductImage" type="url" />
     </label>
 
     <button type="submit">

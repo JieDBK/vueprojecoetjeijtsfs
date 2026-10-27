@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import ProductCard from '../components/ProductCard.vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import ProductForm from '../components/ProductForm.vue'
+import ProductList from '../components/ProductList.vue'
 import type { Product } from '../types/Product.ts'
 onMounted(() => {
   console.log('onMounted is ready!')
@@ -22,8 +22,10 @@ const {
   deleteProduct,
   lastSaved,
   hasUnsavedChanges,
+  initProduct,
+  loading,
+  error
 } = useProducts()
-
 
 function handleAdd(
   name: string,
@@ -31,8 +33,9 @@ function handleAdd(
   description: string,
   stock: number,
   category: string,
+  image?: string,
 ) {
-  addToProducts(name, price, description, stock, category)
+  addToProducts(name, price, description, stock, category, image)
 }
 
 function handleUpdate(product: Product) {
@@ -52,6 +55,7 @@ function handleKeyPress(event: KeyboardEvent) {
 }
 onMounted(() => {
   document.addEventListener('keydown', handleKeyPress)
+  initProduct()
 })
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyPress)
@@ -79,29 +83,19 @@ function cancelEdit() {
     </div>
   </div>
 
-  <div class="product-list">
-    <ProductCard
-      v-for="product in products"
-      :key="product.id"
-      :id="product.id"
-      :name="product.name"
-      :price="product.price"
-      :description="product.description"
-      :stock="product.stock"
-      :category="product.category"
-      @add="addToProducts"
-      @delete="deleteProduct"
-      @edit="startEditing(product)"
-      @cancel="cancelEdit"
-    />
+  <div v-if="loading">Loading products...</div>
+  <div v-else-if="error" class="error">{{ error }}</div>
+  <div v-else>
+    <ProductList
+      :products="products"
+      @edit="startEditing"
+      @delete="deleteProduct"/>
+    <ProductForm
+      :editing-product="editingProduct"
+      @add="handleAdd"
+      @update="handleUpdate"
+      @cancel="cancelEdit"/>
   </div>
-  <ProductForm
-    :editing-product="editingProduct"
-    @add="handleAdd"
-    @update="handleUpdate"
-    @cancel="cancelEdit"
-  >
-  </ProductForm>
 </template>
 
 <style scoped>
