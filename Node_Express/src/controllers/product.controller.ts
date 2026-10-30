@@ -18,10 +18,10 @@ function showAddProductPage(req: Request, res: Response)
     res.sendFile(path.join(__dirname, "..", "views", "add-product.html"))
 }
 
-function handleddProductPage(req: Request, res: Response)
+function handleAddProductPage(req: Request, res: Response)
 {
     const product = req.body
     addProduct(new Product(product.name, product.description, product.price))
     res.sendFile(path.join(__dirname, "..", "views", "add-product.html"))
 }
-export {showProducts, showAddProductPage, handleddProductPage}
+export {showProducts, showAddProductPage, handleAddProductPage}
