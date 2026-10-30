@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <% products.forEach(product => { %>
+    <div style="border: 1px solid black; padding: 0.4rem;">
+    <strong><%= product.name %></strong><br>
+    <%= product.description %><br>
+    $<%= product.price %>
+    </div>
+    <% }) %>
+</body>
+</html>

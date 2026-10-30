@@ -6,6 +6,17 @@ import productRouter from "./routes/product.routes.js";
 const app = express();
 const PORT = 3000;
 
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+app.set("view engine", "ejs")
+app.set("views", path.join(__dirname, "views"))
+
+
+app.use(express.urlencoded({extended: true}))
 app.use((req: Request, res: Response, next: NextFunction) => {
  console.log(`Request: ${req.method} ${req.url}`);
  next(); // without this, the request would stop here
