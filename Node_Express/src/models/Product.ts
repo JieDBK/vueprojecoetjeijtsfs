@@ -1,14 +1,23 @@
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+
+@Entity()
 class Product {
+    @PrimaryGeneratedColumn()
+    id!: number;
+    
+    @Column("text")
     name: string;
+    @Column("text")
     description: string;
+
+    @Column("real")
     price: number;
 
-    constructor(n: string, d: string, p: number)
-    {
-        this.name = n;
-        this.description = d;
-        this.price = p;
-    }
+    constructor(name: string, desc: string, price: number) {
+    this.name = name;
+    this.description = desc;
+    this.price = price;
+ }
 }
 
 const products : Product[] = [];
