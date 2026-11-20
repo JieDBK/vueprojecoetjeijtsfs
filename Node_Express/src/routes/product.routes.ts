@@ -1,6 +1,6 @@
 import express from "express";
 
-import {showProducts, showAddProductPage, handleAddProductPage} from "../controllers/product.controller.js";
+import {showProducts, showAddProductPage, handleAddProduct, showSingleProduct, deleteProduct} from "../controllers/product.controller.js";
 const router = express.Router();
 
 import path from "node:path";
@@ -11,7 +11,9 @@ const __dirname = path.dirname(__filename);
 
 router.get("/products", showProducts)
 router.get("/add-product", showAddProductPage)
-router.post("/add-product", handleAddProductPage)
+router.post("/add-product", handleAddProduct)
+router.get("/product/:id", showSingleProduct)
+router.get("/product/:id/delete", deleteProduct)
 
 
 

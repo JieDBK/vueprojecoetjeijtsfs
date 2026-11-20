@@ -1,10 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Category } from "./Category.js";
 
 @Entity()
 class Product {
     @PrimaryGeneratedColumn()
     id!: number;
-    
+
     @Column("text")
     name: string;
     @Column("text")
@@ -13,10 +14,13 @@ class Product {
     @Column("real")
     price: number;
 
-    constructor(name: string, desc: string, price: number) {
+    @ManyToOne(() => Category, (category) => category.products) category?: Category;
+
+    constructor(name: string, desc: string, price: number, category: Category) {
     this.name = name;
     this.description = desc;
     this.price = price;
+    this.category = category
  }
 }
 

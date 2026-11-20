@@ -1,39 +1,72 @@
-import {Product} from "../models/Product.js";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import type { Request, Response } from 'express';
 
-import { AppDataSource } from "../data-source.js";
-const productRepository = AppDataSource.getRepository(Product)
+import {Product} from "../models/Product.js"
+import { Category } from '../models/Category.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { AppDataSource } from "../data-source.js";
+
+const productRepository = AppDataSource.getRepository(Product)
+const categoryRepository = AppDataSource.getRepository(Category)
 
 
 async function showProducts(req: Request, res: Response) {
- const products: Product[] = await productRepository.find();
- console.log(`Number of products found: ${products.length}`);
- res.render("products", { products: products });
+const products = await productRepository.find({
+ relations: { category: true },
+});
+
+res.render("products", { products: products });
 }
 
-
-function showAddProductPage(req: Request, res: Response)
-{
-    res.sendFile(path.join(__dirname, "..", "views", "add-product.html"))
+function showAddProductPage(req: Request, res: Response) {
+  res.render("add-product")
 }
 
-async function handleAddProductPage(req: Request, res: Response)
-{
-    const product = req.body
-    // addProduct(new Product(product.name, product.description, product.price))
-    const newProduct = productRepository.create({
-        name: product.name,
-        description: product.description,
-        price: product.price
-    })
+async function handleAddProduct(req: Request, res: Response) {
+  const product = req.body
 
-    const savedProduct = await productRepository.save(newProduct)
-    console.log(savedProduct.id)
-    res.sendFile(path.join(__dirname, "..", "views", "add-product.html"))
+  if (product.name == "" || product.description == "" || product.price == "" || isNaN(product.price)) {
+    res.status(400).send("Product form invalid!");
+    return;
+  }
+
+ // Create a partial Product object, ready for my ORM
+ const newProduct = productRepository.create({
+ name: req.body.name,
+ description: req.body.description,
+ price: Number(req.body.price)
+ })
+
+ const bookCategory = await categoryRepository.findOneBy({
+  name: "Books"
+ })
+
+ if(bookCategory) {
+   newProduct.category = bookCategory
+ }
+
+ // Save it to the database, returns new product including the generated id
+ const savedProduct = await productRepository.save(newProduct)
+ console.log(`New product saved with id ${savedProduct.id}`)
+
+ // Render the page again with a new message
+ res.render("add-product", { message: "Product added" });
 }
-export {showProducts, showAddProductPage, handleAddProductPage}
+
+async function showSingleProduct(req: Request, res: Response) {
+  const paramId = Number(req.params.id);
+  const product = await productRepository.findOne({
+  where: { id: paramId },
+  relations: { category: true },
+  });
+  res.render("product", {product: product})
+}
+
+async function deleteProduct(req: Request, res: Response) {
+  const paramId = Number(req.params.id)
+
+  await productRepository.delete(paramId)
+
+  res.redirect("/shop/products")
+}
+
+export {showProducts, showAddProductPage, handleAddProduct, showSingleProduct, deleteProduct }

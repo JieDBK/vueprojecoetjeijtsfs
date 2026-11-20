@@ -10,7 +10,8 @@
     <div style="border: 1px solid black; padding: 0.4rem;">
     <strong><%= product.name %></strong><br>
     <%= product.description %><br>
-    $<%= product.price %>
+    $<%= product.price %><br>
+    <a href="/shop/product/<%= product.id %>">Bekijk product</a>
     </div>
     <% }) %>
 </body>

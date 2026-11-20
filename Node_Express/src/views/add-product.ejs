@@ -6,6 +6,9 @@
     <title>Voeg een product toe</title>
 </head>
 <body>
+    <% if (typeof message !== "undefined") { %>
+        <p><%= message %></p>
+    <% } %>
     <form action="" method="post">
         <input type="text" name="name" required>
         <input type="text" name="description" required>
