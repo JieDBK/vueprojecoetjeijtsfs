@@ -1,0 +1,15 @@
+get http://localhost:3000/api/products
+###
+get http://localhost:3000/api/products?categoryId=1
+###
+get http://localhost:3000/api/products?name=sda
+
+###
+POST http://localhost:3000/api/products
+Content-Type: application/json
+
+{
+    "name": "The hobbit",
+    "description": "Fantasy",
+    "price": 12.50
+}

@@ -15,6 +15,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
+    "cors": "^2.8.6",
     "vue": "^3.5.42",
     "vue-router": "^5.3.1"
   },
