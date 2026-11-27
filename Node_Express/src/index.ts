@@ -1,3 +1,9 @@
+import 'dotenv/config';
+if (!process.env.JWT_SECRET) {
+ console.error("ERROR: JWT_SECRET is not set in .env file");
+ process.exit(1);
+}
+
 import express from "express";
 import type { Request, Response, NextFunction } from 'express';
 

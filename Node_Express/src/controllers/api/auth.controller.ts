@@ -25,13 +25,14 @@ async function loginUser(req: Request, res: Response) {
 
     // TODO: Generate the JWT and send it back
     const token = jwt.sign(
-    { 
-        id: user.id, 
-        role: user.role 
-    }, 
-    "my_temporary_secret_123", // Using a hardcoded secret for now
-    { expiresIn: '1h' }
-);
+    {
+        id: user.id,
+        role: user.role
+        },
+        process.env.JWT_SECRET as string,
+        { expiresIn: '1h' }
+    );
+
 
     res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });    
 }

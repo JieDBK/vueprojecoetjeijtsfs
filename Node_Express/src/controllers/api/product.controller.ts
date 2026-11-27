@@ -59,5 +59,5 @@ async function addProduct(req: Request, res: Response) {
  console.log(`New product saved with id ${savedProduct.id}`)
  res.status(201).json(savedProduct)
 }
-
+  
 export {getAllProduct, getProduct, addProduct}

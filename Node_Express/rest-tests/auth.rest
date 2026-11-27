@@ -14,3 +14,23 @@ Content-Type: application/json
     "email": "HarryPotter@gmail.com",
     "password": "goedewachtwoordneef"
 }
+
+### Get all products (without token - should fail)
+GET http://localhost:3000/api/products
+
+### Login and save token
+# @name login
+POST http://localhost:3000/api/auth/login
+Content-Type: application/json
+
+{
+ "email": "HarryPotter@gmail.com",
+ "password": "goedewachtwoordneef"
+}
+###
+@token = {{login.response.body.token}}
+### Get all products with saved token
+GET http://localhost:3000/api/products
+Authorization: Bearer {{token}}
+
+
